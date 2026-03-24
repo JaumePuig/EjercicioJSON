@@ -1,40 +1,37 @@
 class Battle {
-  constructor(data) {
-    this.player = data.player;
-    this.enemy = data.enemy;
+  constructor(inventario, player, enemy) {
+    this.inventario = inventario;
+    this.player = player;
+    this.enemy = enemy;
 
     this.pHp = document.getElementById("p-hp");
     this.eHp = document.getElementById("e-hp");
     this.log = document.getElementById("log");
 
-    // Botón atacar
-    const btn_atacar=document.getElementById("btn-atacar")
-    btn_atacar.addEventListener("click", () => atacar());
+    document
+      .getElementById("btn-atacar")
+      .addEventListener("click", () => this.atacar());
 
-    // Botón poción
-    const btn_pocion=document.getElementById("btn-curar")
-      btn_pocion.addEventListener("click", () => usarPocion());
+    document
+      .getElementById("btn-curar")
+      .addEventListener("click", () => this.usarPocion());
   }
-
-  
 
   atacar() {
     if (this.verificarVictoria()) return;
 
     let random = Math.floor(Math.random() * 10);
-
     let damage = (this.player.ataque - this.enemy.defensa) + random;
+
     if (damage < 0) damage = 0;
 
     this.enemy.vida -= damage;
     if (this.enemy.vida < 0) this.enemy.vida = 0;
 
     this.eHp.textContent = this.enemy.vida;
-
-    this.log.textContent += "Jugador hace " + damage + " de daño\n";
+    this.log.textContent += `Jugador hace ${damage} de daño\n`;
 
     if (this.verificarVictoria()) return;
-
     this.turnoEnemigo();
   }
 
@@ -45,16 +42,15 @@ class Battle {
 
     if (decision < 0.7) {
       let random = Math.floor(Math.random() * 10);
-
       let damage = (this.enemy.ataque - this.player.defensa) + random;
+
       if (damage < 0) damage = 0;
 
       this.player.vida -= damage;
       if (this.player.vida < 0) this.player.vida = 0;
 
       this.pHp.textContent = this.player.vida;
-
-      this.log.textContent += "Enemigo hace " + damage + " de daño\n";
+      this.log.textContent += `Enemigo hace ${damage} de daño\n`;
     } else {
       this.log.textContent += "Enemigo espera\n";
     }
@@ -65,10 +61,7 @@ class Battle {
   usarPocion() {
     if (this.verificarVictoria()) return;
 
-    let curacion = 5;
-
-    this.player.vida += curacion;
-
+    this.player.vida += 5;
     this.pHp.textContent = this.player.vida;
 
     this.log.textContent += "Usa poción +5 vida\n";
@@ -97,3 +90,41 @@ class Battle {
     document.getElementById("btn-curar").disabled = true;
   }
 }
+
+const inventory = document.getElementById("p-inventory");
+
+const jugador = {
+  vida: 100,
+  ataque: 10,
+  defensa: 10,
+  velocidad: 10,
+};
+
+const enemigo = {
+  vida: 100,
+  ataque: 10,
+  defensa: 10,
+  velocidad: 10,
+};
+
+const inventario = [
+  { nombre: "pocion", tipo: "curacion", valor: 100 },
+  { nombre: "ataque X", tipo: "potenciador", valor: 150 },
+];
+
+function crearInventario() {
+  inventario.forEach((item) => {
+    let btn = document.createElement("button");
+    btn.textContent = item.nombre;
+
+    btn.addEventListener("click", () => {
+      console.log(`Item ${item.nombre} usado`);
+    });
+
+    inventory.appendChild(btn);
+  });
+}
+
+crearInventario();
+
+const battle = new Battle(inventario, jugador, enemigo);
